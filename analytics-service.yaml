@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lugx-analytics-service
+  namespace: lugx-analytics-v3
+  labels:
+    app: lugx-analytics-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lugx-analytics-service
+  template:
+    metadata:
+      labels:
+        app: lugx-analytics-service
+    spec:
+      containers:
+        - name: analytics-container
+          image: isurimani/lugx-assignment-service:analytics-v1.0.2
+          ports:
+            - containerPort: 4000
+          env:
+            - name: CLICKHOUSE_URL
+              value: "http://clickhouse-service.lugx-analytics-v3.svc.cluster.local:8123"
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_USER
+              value: default
+            - name: CLICKHOUSE_PASSWORD
+              value: ""
+            - name: CLICKHOUSE_DATABASE
+              value: lugx_analytics
+
+            - name: AWS_REGION
+              value: ap-south-1
+            - name: S3_BUCKET_NAME
+              value: lugx-analytics-raw
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: analytics-env-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: analytics-env-secret
+                  key: AWS_SECRET_ACCESS_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lugx-analytics-service
+  namespace: lugx-analytics-v3
+  labels:
+    app: lugx-analytics-service
+spec:
+  type: NodePort
+  selector:
+    app: lugx-analytics-service
+  ports:
+    # - protocol: TCP
+    #   port: 4000
+    #   targetPort: 4000
+    - port: 4000
+      targetPort: 4000
+      nodePort: 32000

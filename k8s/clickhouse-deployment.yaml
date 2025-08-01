@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clickhouse
+  namespace: lugx-analytics-v3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clickhouse
+  template:
+    metadata:
+      labels:
+        app: clickhouse
+    spec:
+      containers:
+        - name: clickhouse
+          image: clickhouse/clickhouse-server:23.3
+          ports:
+            - containerPort: 8123
+            - containerPort: 9000
+          volumeMounts:
+            - name: clickhouse-storage
+              mountPath: /var/lib/clickhouse
+      volumes:
+        - name: clickhouse-storage
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse-service
+  namespace: lugx-analytics-v3
+spec:
+  selector:
+    app: clickhouse
+  ports:
+    - name: http
+      port: 8123
+      targetPort: 8123
+    - name: native
+      port: 9000
+      targetPort: 9000
+  type: NodePort
