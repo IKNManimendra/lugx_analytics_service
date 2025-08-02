@@ -20,6 +20,13 @@ spec:
           image: isurimani/lugx-assignment-service:analytics-v1.0.2
           ports:
             - containerPort: 4000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           env:
             - name: CLICKHOUSE_URL
               value: "http://clickhouse-service.lugx-analytics-v3.svc.cluster.local:8123"
