@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: clickhouse
-  namespace: lugx-analytics-v3
+  namespace: lugx-analytics
 spec:
   replicas: 1
   selector:
@@ -30,7 +30,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: clickhouse-service
-  namespace: lugx-analytics-v3
+  namespace: lugx-analytics
 spec:
   selector:
     app: clickhouse

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lugx-analytics-service
-  namespace: lugx-analytics-v3
+  namespace: lugx-analytics
   labels:
     app: lugx-analytics-service
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: analytics-container
-          image: isurimani/lugx-assignment-service:analytics-v1.0.2
+          image: isurimani/lugx-assignment-service:analytics-v1.0.4
           ports:
             - containerPort: 4000
           resources:
@@ -25,11 +25,11 @@ spec:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: 250m # reduced from 500m
+              memory: 256Mi # reduced from 512Mi
           env:
             - name: CLICKHOUSE_URL
-              value: "http://clickhouse-service.lugx-analytics-v3.svc.cluster.local:8123"
+              value: "http://clickhouse-service.lugx-analytics.svc.cluster.local:8123"
             - name: CLICKHOUSE_PORT
               value: "8123"
             - name: CLICKHOUSE_USER
@@ -59,7 +59,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: lugx-analytics-service
-  namespace: lugx-analytics-v3
+  namespace: lugx-analytics
   labels:
     app: lugx-analytics-service
 spec:

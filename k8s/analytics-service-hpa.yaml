@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: analytics-service-hpa
-  namespace: lugx-analytics-v3
+  namespace: lugx-analytics
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

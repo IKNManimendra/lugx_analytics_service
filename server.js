@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 });
 
 // Mount routes
-app.use('/api', analyticsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.listen(port, () => {
     console.log(`Analytics Service running on port ${port}`);
