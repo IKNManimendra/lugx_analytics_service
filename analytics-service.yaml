@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: analytics-container
-          image: isurimani/lugx-assignment-service:analytics-v1.0.5
+          image: isurimani/lugx-assignment-service:analytics-v1.0.6
           ports:
             - containerPort: 4000
           resources:

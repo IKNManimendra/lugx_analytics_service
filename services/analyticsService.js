@@ -67,7 +67,7 @@ const uploadDashboardDataToBUcketService = async () => {
         // Convert to newline-delimited JSON
         const ndjson = allEvents.map(record => JSON.stringify(record)).join('\n');
 
-        const s3Key = 'analytics_dummy_data.csv'; // Overwrite same file for QuickSight
+        const s3Key = 'analytics-dashboard/analytics_dummy_data.json'; // Overwrite same file for QuickSight
 
         // Upload to S3 (overwrite mode)
         await s3.putObject({
