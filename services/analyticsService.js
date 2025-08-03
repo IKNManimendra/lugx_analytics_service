@@ -42,41 +42,46 @@ const insertScrollDepthService = async (event) => {
 // Fetch and save to S3
 const uploadDashboardDataToBUcketService = async () => {
     try {
-        // Execute all 3 queries concurrently
+        // Fetch data from ClickHouse
         const [pageViewsResult, clicksResult, scrollDepthsResult] = await Promise.all([
             clickhouse.query('SELECT * FROM page_views ORDER BY timestamp DESC LIMIT 50').toPromise(),
             clickhouse.query('SELECT * FROM clicks ORDER BY timestamp DESC LIMIT 50').toPromise(),
             clickhouse.query('SELECT * FROM scroll_depth ORDER BY timestamp DESC LIMIT 50').toPromise()
         ]);
 
-        // Parse each result to get the `.data` field
         const pageViews = pageViewsResult || [];
         const clicks = clicksResult || [];
         const scrollDepths = scrollDepthsResult || [];
 
-        // Check if all are empty
         if (!pageViews.length && !clicks.length && !scrollDepths.length) {
             throw new Error('No data found in ClickHouse tables');
         }
 
-        // Combine all into a single object
-        const combinedData = { pageViews, clicks, scrollDepths };
-        console.log('combined Data in fetchDashboardData', combinedData)
-        // Create a unique key for the S3 object
-        const s3Key = `analytics-dashboard/${Date.now()}.json`;
-        console.log(`Uploading dashboard data to S3 as: ${s3Key}`);
+        // Merge all rows into a single flat array
+        const allEvents = [
+            ...pageViews.map(r => ({ ...r, event_type: 'page_view' })),
+            ...clicks.map(r => ({ ...r, event_type: 'click' })),
+            ...scrollDepths.map(r => ({ ...r, event_type: 'scroll_depth' }))
+        ];
 
-        // Upload to S3
+        // Convert to newline-delimited JSON
+        const ndjson = allEvents.map(record => JSON.stringify(record)).join('\n');
+
+        const s3Key = 'analytics_dummy_data.csv'; // Overwrite same file for QuickSight
+
+        // Upload to S3 (overwrite mode)
         await s3.putObject({
             Bucket: process.env.S3_BUCKET_NAME,
             Key: s3Key,
-            Body: JSON.stringify(combinedData),
-            ContentType: 'application/json',
+            Body: ndjson,
+            ContentType: 'application/json' // Or 'application/x-ndjson'
         }).promise();
-        return { message: 'Dashboard data saved to S3', s3Key };
+
+        console.log(`Uploaded ${allEvents.length} records to S3 as ${s3Key}`);
+        return { message: 'Real analytics data uploaded to S3 for QuickSight', s3Key };
 
     } catch (error) {
-        console.error('Error fetching dashboard data or uploading to S3:', error);
+        console.error('Error uploading real dashboard data:', error);
         throw error;
     }
 };
